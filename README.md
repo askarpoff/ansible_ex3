@@ -6,9 +6,7 @@ Playbook устанавливает Clickhouse, Vector и Lighthouse на три
 В каталоге group_vars задаются версии дистрибутивов.
 
 |clickhouse_version|версия clickhouse| 
-|-|--------|
 |vector_version|версия vector|
-|-|--------|
 |lighthouse_src|ссылка на zip-архив ветки master в  git lighthouse|
 |nginx_user_name|пользователь для запуска  nginx|
     
