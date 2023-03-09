@@ -1,0 +1,138 @@
+---
+- name: Install Clickhouse
+  tags:
+    - clickhouse
+  hosts: clickhouse
+  handlers:
+    - name: Start clickhouse service
+      become: true
+      ansible.builtin.service:
+        name: clickhouse-server
+        state: restarted
+  tasks:
+    - block:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/{{ item }}-{{ clickhouse_version }}.noarch.rpm"
+            dest: "./{{ item }}-{{ clickhouse_version }}.rpm"
+          with_items: "{{ clickhouse_packages }}"
+      rescue:
+        - name: Get clickhouse distrib
+          ansible.builtin.get_url:
+            url: "https://packages.clickhouse.com/rpm/stable/clickhouse-common-static-{{ clickhouse_version }}.x86_64.rpm"
+            dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
+
+    - name: Install clickhouse packages
+      become: true
+      ansible.builtin.yum:
+        disable_gpg_check: True
+        name:
+          - clickhouse-common-static-{{ clickhouse_version }}.rpm
+          - clickhouse-client-{{ clickhouse_version }}.rpm
+          - clickhouse-server-{{ clickhouse_version }}.rpm
+      notify: Start clickhouse service
+    - name: Flush_handlers
+      meta: flush_handlers
+    - name: Create database
+      ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
+      register: create_db
+      failed_when: create_db.rc != 0 and create_db.rc !=82
+      changed_when: create_db.rc == 0
+- name: Install Vector
+  tags:
+    - vector
+  hosts: vector
+  handlers:
+    - name: Start vector service
+      become: true
+      ansible.builtin.service:
+        name: vector
+        state: started
+  tasks:
+    - name: Get vector distrib
+      ansible.builtin.get_url:
+        url: "https://packages.timber.io/vector/{{ vector_version}}/vector-{{ vector_version }}-1.x86_64.rpm"
+        dest: "./vector-{{ vector_version }}-1.x86_64.rpm"
+
+    - name: Install vector packages
+      become: true
+      ansible.builtin.yum:
+        disable_gpg_check: True
+        name: vector-{{ vector_version }}-1.x86_64.rpm
+      notify: Start vector service
+
+- name: Install NGINX
+  tags:
+    - lighthouse
+  hosts: lighthouse
+  handlers:
+    - name: Start Nginx service
+      become: true
+      ansible.builtin.service:
+        name: nginx
+        state: started
+    - name: Restart Nginx service
+      become: true
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+  pre_tasks:
+    - name: Install EPEL Repo
+      become : true
+      ansible.builtin.yum: name=epel-release state=present
+  tasks:
+    - name: Install NGINX packages
+      become: true
+      ansible.builtin.yum:
+        disable_gpg_check: True
+        name: nginx
+    - name: Create NGINX config
+      become: true
+      ansible.builtin.template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: 0644
+    - name: Enable Nginx service
+      become: true
+      ansible.builtin.systemd:
+        name: nginx
+        enabled: true
+      notify: Start Nginx service
+- name: Install Lighthouse
+  tags:
+    - lighthouse
+  hosts: lighthouse
+  handlers:
+    - name: Restart Nginx service
+      become: true
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+  pre_tasks:
+    - name: install unzip
+      become: true
+      ansible.builtin.yum:
+        name: unzip
+        state: present
+  tasks:
+
+    - name: Creates directory for www
+      become : true
+      file:
+        path: /var/www
+        state: directory
+        mode: 0777
+    - name: Download and unzip lighthouse static
+      ansible.builtin.unarchive:
+        src: "{{ lighthouse_src }}"
+        dest: /var/www
+        remote_src: yes
+    - name: Create Nginx config lighthouse | Install Nginx
+      become: true
+      template:
+        src: lighthouse.conf.j2
+        dest: /etc/nginx/conf.d/lighthouse.conf
+        mode: 0644
+      notify: Restart Nginx service
+    - name: Flush_handlers
+      meta: flush_handlers  
