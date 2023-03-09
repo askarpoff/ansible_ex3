@@ -1,6 +1,6 @@
 # 08-ansible-03-yandex
 
-Playbook устанавливает Clickhouse, Vector и Lighthouse на три хоста, доступные по по ssh, запускает службу `clickhouse-server`, `vector`, создает базу `logs` в `clickhouse`,устанавливает веб-север nginx, разворачивает web-интерфейс `lighthouse`
+Playbook устанавливает Clickhouse, Vector и Lighthouse на три хоста, доступные по по ssh, запускает службы `clickhouse-server`, `vector`, создает базу `logs` в `clickhouse`,устанавливает и запускает веб-север nginx, разворачивает web-интерфейс `lighthouse`
 
 ### Variables
 В каталоге group_vars задаются версии дистрибутивов.
