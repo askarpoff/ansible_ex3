@@ -4,11 +4,13 @@ Playbook устанавливает Clickhouse, Vector и Lighthouse на три
 
 ### Variables
 В каталоге group_vars задаются версии дистрибутивов.
-
-|clickhouse_version|версия clickhouse| 
-|vector_version|версия vector|
-|lighthouse_src|ссылка на zip-архив ветки master в  git lighthouse|
-|nginx_user_name|пользователь для запуска  nginx|
+| Имя           | Значение по умолчанию | Описание                        |
+| -------------- | ------------- | -----------------------------------|
+| `clickhouse_version` |  "22.3.3.44" | Версия Clickhouse |
+| `clickhouse_packages` | clickhouse-client, clickhouse-server, clickhouse-common-static | Пакеты Clickhouse для установки |
+| vector_version | "0.27.0" | Версия Vector |
+|lighthouse_src| https://github.com/VKCOM/lighthouse/archive/refs/heads/master.zip|ссылка на zip-архив ветки master в  git lighthouse|
+|nginx_user_name|root|пользователь для запуска  nginx|
     
 ### Install Clickhouse
  Скачиваются rpm пакеты, устанавливается Сlickhouse, создается база logs. 
@@ -22,6 +24,8 @@ Playbook устанавливает Clickhouse, Vector и Lighthouse на три
 
 ### Tags
 
+| Имя           | Значение |
+| -------------- | ------------- | 
 |clickhouse| Устанавливает только Сlickhouse| 
 |vector| Устанавливает только Vector|
 |lighthouse| Устанавливает только Lighthouse|
