@@ -4,7 +4,7 @@ Playbook устанавливает Clickhouse, Vector и Lighthouse на три
 
 ### Variables
 В каталоге group_vars задаются версии дистрибутивов.
-|-|-----------|
+
 |clickhouse_version|версия clickhouse| 
 |vector_version|версия vector|
 |lighthouse_src|ссылка на zip-архив ветки master в  git lighthouse|
@@ -21,7 +21,7 @@ Playbook устанавливает Clickhouse, Vector и Lighthouse на три
 Распапковываются файлы lighthouse.
 
 ### Tags
-|-|-----------|
+
 |clickhouse| Устанавливает только Сlickhouse| 
 |vector| Устанавливает только Vector|
 |lighthouse| Устанавливает только Lighthouse|
